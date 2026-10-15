@@ -12,6 +12,9 @@ Each product document should contain:
 - `name` — display name
 - `price` — numeric USD price
 - `img` — Firebase Storage download URL
+- `available` — optional boolean controlling whether customers can buy the
+  product. Only `false` means unavailable. Legacy records that omit the field
+  remain available; new records default to `true` in the admin form.
 
 ### `ShoeSafariOrders`
 

@@ -7,6 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 const EditProductForm = ({ productId, onProductUpdated }) => {
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
+  const [available, setAvailable] = useState(true);
   const [productImage, setProductImage] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,7 @@ const EditProductForm = ({ productId, onProductUpdated }) => {
           const productData = docSnap.data();
           setProductName(productData.name);
           setProductPrice(productData.price);
+          setAvailable(productData.available !== false);
           setExistingImageUrl(productData.img);
         } else {
           setErrorMessage("Product not found");
@@ -58,6 +60,7 @@ const EditProductForm = ({ productId, onProductUpdated }) => {
         name: productName,
         price: parseFloat(productPrice),
         img: imageUrl,
+        available,
       });
 
       setSuccessMessage("Product updated successfully!");
@@ -85,6 +88,16 @@ const EditProductForm = ({ productId, onProductUpdated }) => {
             {errorMessage}
           </div>
         )}
+        <div className="mb-6">
+          <label className="flex items-center gap-3 text-gray-700 text-lg font-semibold">
+            <input
+              type="checkbox"
+              checked={available}
+              onChange={(event) => setAvailable(event.target.checked)}
+            />
+            Available for purchase
+          </label>
+        </div>
         <div className="mb-6">
           <label className="block text-gray-700 text-lg font-semibold">
             Product Name
