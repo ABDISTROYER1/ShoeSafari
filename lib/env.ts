@@ -35,28 +35,23 @@ export interface FirebaseConfig {
   measurementId?: string;
 }
 
-export interface AdminConfig {
-  adminEmails: string[];
-}
-
 export interface EnvConfig {
   stellar: StellarConfig;
   emailjs: EmailJSConfig;
   firebase: FirebaseConfig;
-  admin: AdminConfig;
 }
 
 // =============================================================================
 // DEFAULTS
 // =============================================================================
 
+// Keep docs/NETWORK_CONFIGURATION.md in sync with these server-side defaults.
 const STELLAR_DEFAULTS = {
   testnet: {
     rpcUrl: "https://soroban-testnet.stellar.org",
     networkPassphrase: "Test SDF Network ; September 2015",
     usdcContractId: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
-    nativeAssetContractId:
-      "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+    nativeAssetContractId: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
   },
   mainnet: {
     rpcUrl: "https://soroban-rpc.mainnet.stellar.gateway.fm",
@@ -148,11 +143,9 @@ function getEnv(name: string, defaultValue: string = ""): string {
 /**
  * Loads and validates Stellar configuration.
  */
-export function loadStellarConfig(
-  errors: ValidationError[] = []
-): StellarConfig {
-  const network = (getEnv("NEXT_PUBLIC_STELLAR_NETWORK", "testnet") ||
-    "testnet") as "testnet" | "mainnet";
+export function loadStellarConfig(errors: ValidationError[] = []): StellarConfig {
+  const network = (getEnv("NEXT_PUBLIC_STELLAR_NETWORK", "testnet") || "testnet") as
+    "testnet" | "mainnet";
   const defaults = STELLAR_DEFAULTS[network];
 
   const checkoutContractId = requireEnv(REQUIRED_ENV.checkoutContractId, errors);
@@ -160,15 +153,9 @@ export function loadStellarConfig(
   return {
     network,
     rpcUrl: getEnv("NEXT_PUBLIC_STELLAR_RPC_URL", defaults.rpcUrl),
-    networkPassphrase: getEnv(
-      "NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE",
-      defaults.networkPassphrase
-    ),
+    networkPassphrase: getEnv("NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE", defaults.networkPassphrase),
     checkoutContractId,
-    usdcContractId: getEnv(
-      "NEXT_PUBLIC_USDC_CONTRACT_ID",
-      defaults.usdcContractId
-    ),
+    usdcContractId: getEnv("NEXT_PUBLIC_USDC_CONTRACT_ID", defaults.usdcContractId),
     nativeAssetContractId: getEnv(
       "NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID",
       defaults.nativeAssetContractId
@@ -179,9 +166,7 @@ export function loadStellarConfig(
 /**
  * Loads and validates EmailJS configuration.
  */
-export function loadEmailJSConfig(
-  errors: ValidationError[] = []
-): EmailJSConfig {
+export function loadEmailJSConfig(errors: ValidationError[] = []): EmailJSConfig {
   return {
     serviceId: requireEnv(REQUIRED_ENV.emailJsServiceId, errors),
     templateId: requireEnv(REQUIRED_ENV.emailJsTemplateId, errors),
@@ -193,9 +178,7 @@ export function loadEmailJSConfig(
 /**
  * Loads and validates Firebase configuration.
  */
-export function loadFirebaseConfig(
-  errors: ValidationError[] = []
-): FirebaseConfig {
+export function loadFirebaseConfig(errors: ValidationError[] = []): FirebaseConfig {
   return {
     apiKey: requireEnv(REQUIRED_ENV.firebaseApiKey, errors),
     authDomain: requireEnv(REQUIRED_ENV.firebaseAuthDomain, errors),
@@ -205,19 +188,6 @@ export function loadFirebaseConfig(
     appId: requireEnv(REQUIRED_ENV.firebaseAppId, errors),
     measurementId: getEnv("NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID"),
   };
-}
-
-/**
- * Loads admin configuration.
- */
-export function loadAdminConfig(): AdminConfig {
-  const adminEmailsRaw = getEnv("NEXT_PUBLIC_ADMIN_EMAILS", "");
-  const adminEmails = adminEmailsRaw
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter((email) => email !== "");
-
-  return { adminEmails };
 }
 
 // =============================================================================
@@ -234,7 +204,6 @@ export function validateEnv(): EnvConfig {
   const stellar = loadStellarConfig(errors);
   const emailjs = loadEmailJSConfig(errors);
   const firebase = loadFirebaseConfig(errors);
-  const admin = loadAdminConfig();
 
   if (errors.length > 0) {
     const errorList = errors.map((e) => `  - ${e.field}: ${e.message}`).join("\n");
@@ -244,7 +213,7 @@ export function validateEnv(): EnvConfig {
     );
   }
 
-  return { stellar, emailjs, firebase, admin };
+  return { stellar, emailjs, firebase };
 }
 
 export type EnvironmentDiagnostics = {
@@ -270,15 +239,6 @@ export function getEnvironmentDiagnostics(): EnvironmentDiagnostics {
       configured: Boolean(process.env[name]?.trim()),
     })),
   };
-}
-
-/**
- * Checks if a user email is in the admin list.
- */
-export function isAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const { adminEmails } = loadAdminConfig();
-  return adminEmails.includes(email.toLowerCase());
 }
 
 /**
