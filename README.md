@@ -79,10 +79,13 @@ timestamp, status }` and transitions `Pending → Paid → Shipped/Refunded`.
   - [Step 6 — Wire the deployed contract to the storefront](#step-6--wire-the-deployed-contract-to-the-storefront)
   - [Convenience script](#convenience-script)
 - [Paying with Stellar (testnet)](#paying-with-stellar-testnet)
+- [Testnet checkout validation](docs/TESTNET_CHECKOUT.md)
 - [Environment Variables Reference](#environment-variables-reference)
+- [Stellar network configuration matrix](docs/NETWORK_CONFIGURATION.md)
 - [Security Notes](#security-notes)
 - [Stellar integration API reference](docs/STELLAR_API.md)
 - [Firestore deployment notes](docs/FIRESTORE.md)
+- [Merchant dispatch and refund runbook](docs/ADMIN_ORDERS.md)
 - [Drips Wave issue backlog](docs/WAVE_ISSUES.md)
 - [Contributing](#contributing)
 - [License](#license)
@@ -475,6 +478,14 @@ It prints the `NEXT_PUBLIC_CHECKOUT_CONTRACT_ID` to paste into `.env.local`.
 | `MONGO_DB_URI`                           | yes      | Mongo URI (existing storefront)                                |
 
 \* Required for the Stellar payment stage; empty until you deploy the contract.
+
+`npm run build` validates required public Firebase, EmailJS, and checkout
+configuration before Next.js compiles. Testnet may use the documented RPC,
+passphrase, and token defaults. Mainnet builds must explicitly set the RPC URL
+and USDC/native token contract IDs. CI uses nonfunctional placeholders to check
+the build without production credentials; validation errors name variables but
+never print their values. Run `npm run validate:production-env` to check a
+deployment environment directly.
 
 ## Security Notes
 
